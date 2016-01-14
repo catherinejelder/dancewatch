@@ -15,6 +15,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.common.api.ResultCallback;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,8 +76,10 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     private void sendMessage() {
 
         if (mNode != null && mGoogleApiClient!=null && mGoogleApiClient.isConnected()) {
+            byte[] songUri = "spotify:track:5R9a4t5t5O0IsznsrKPVro".getBytes(StandardCharsets.UTF_8);
+
             Wearable.MessageApi.sendMessage(
-                    mGoogleApiClient, mNode.getId(), HELLO_WORLD_WEAR_PATH, null).setResultCallback(
+                    mGoogleApiClient, mNode.getId(), HELLO_WORLD_WEAR_PATH, songUri).setResultCallback(
 
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
@@ -86,8 +89,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
                                 Log.e(TAG, "Failed to send message with status code: "
                                         + sendMessageResult.getStatus().getStatusCode());
                             } else {
-                                Log.d(TAG, "sent message with status code: "
-                                        + sendMessageResult.getStatus().getStatusCode());
+                                Log.d(TAG, "sent message to mobile successfully");
                             }
                         }
                     }

@@ -6,6 +6,8 @@ import android.util.Log;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Created by celder on 1/9/16.
  */
@@ -21,12 +23,16 @@ public class ListenerServiceFromWear extends WearableListenerService {
          * Receive the message from wear
          */
         Log.d(TAG, "message received, event: " + messageEvent);
+        Log.d(TAG, "messageEvent.getPath: " + messageEvent.getPath());
 
         if (messageEvent.getPath().equals(HELLO_WORLD_WEAR_PATH)) {
+            String songUri = new String(messageEvent.getData(), StandardCharsets.UTF_8);
+            Log.d(TAG, "got a message with songUri: " + songUri);
             Log.d(TAG, "attempting to start MainActivity");
 
             Intent startIntent = new Intent(this, MainActivity.class);
             startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startIntent.putExtra("SPOTIFY_URI", songUri);
             startActivity(startIntent);
         }
 
