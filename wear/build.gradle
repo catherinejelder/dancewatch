@@ -24,4 +24,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.google.android.support:wearable:1.3.0'
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
+    // math for extracting properties of sinusoids
+    compile 'org.apache.commons:commons-math3:3.6'
 }

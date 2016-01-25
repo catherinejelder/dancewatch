@@ -1,12 +1,19 @@
 package com.example.celder.dancewatch;
 
 import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.wearable.view.CircledImageView;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.view.View;
 
+import com.example.celder.data.SimpleDanceRecord;
+import com.example.celder.data.Song;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.MessageApi;
@@ -16,12 +23,14 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.common.api.ResultCallback;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 /**
  * Created by celder on 1/9/16.
  */
-public class WatchActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class WatchActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        SensorEventListener {
 
     Node mNode; // the connected device to send the message to
     GoogleApiClient mGoogleApiClient;
@@ -29,10 +38,16 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     private boolean mResolvingError=false;
     private static final String TAG = "WatchActivity";
 
+    private SensorManager mSensorManager;
+    private Sensor mRotationVectorSensor;
+    private final float[] mRotationMatrix = new float[16];
+
+    private SimpleDanceRecord danceRecord;
+    private Handler messageHandler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_launch);
         setContentView(R.layout.activity_watch);
 
         //Connect the GoogleApiClient
@@ -42,45 +57,52 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        // find and initialize rotation vector sensor
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mRotationVectorSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+        // initialize rotation matrix
+        mRotationMatrix[0] = 1;
+        mRotationMatrix[4] = 1;
+        mRotationMatrix[8] = 1;
+        mRotationMatrix[12] = 1;
+
         //UI elements with a simple CircleImageView
 //        final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                // mimic waiting for a dance move to complete
-//                try {
-//                    TimeUnit.SECONDS.sleep(3);
-//                } catch (InterruptedException ex) {
-//                    Log.e(TAG, "InterruptedException during sleep: " + ex);
-//                }
-//                sendMessage();
-
-//                CircledImageView mCircledImageView = (CircledImageView) stub.findViewById(R.id.circle);
-//
-//                //Listener to send the message (it is just an example)
-//                mCircledImageView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        sendMessage();
-//                    }
-//                });
             }
         });
-    }
 
+        // periodically check if a song has been detected
+        danceRecord = new SimpleDanceRecord();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Song song = danceRecord.isSong();
+                if (song != Song.NONE) {
+                    sendMessage(song.uri);
+                }
+                messageHandler.postDelayed(this, 250);
+            }
+        };
+
+        messageHandler.postDelayed(runnable, 250);
+    }
 
     /**
      * Send message to mobile handheld
      */
-    private void sendMessage() {
-
+    private void sendMessage(String uri) {
         if (mNode != null && mGoogleApiClient!=null && mGoogleApiClient.isConnected()) {
-            byte[] songUri = "spotify:track:5R9a4t5t5O0IsznsrKPVro".getBytes(StandardCharsets.UTF_8);
+//            byte[] songUri = "spotify:track:5R9a4t5t5O0IsznsrKPVro".getBytes(StandardCharsets.UTF_8);
+            byte[] songUri = uri.getBytes(StandardCharsets.UTF_8);
 
             Wearable.MessageApi.sendMessage(
                     mGoogleApiClient, mNode.getId(), HELLO_WORLD_WEAR_PATH, songUri).setResultCallback(
-
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
                         public void onResult(MessageApi.SendMessageResult sendMessageResult) {
@@ -134,7 +156,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
                         mNode = node;
 
                         // TODO: call this only after a song is detected
-                        sendMessage();
+//                        sendMessage();
                     }
                 }
             }
@@ -155,5 +177,24 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         //Improve your code
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.d(TAG, "onSensorChanged called");
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+            float orientation[] = new float[3];
+            SensorManager.getOrientation(mRotationMatrix, orientation);
+            Log.d("WatchActivity", "getOrientation = " + Arrays.toString(orientation));
+            // update dance record
+            this.danceRecord.addPoint(orientation);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        Log.d(TAG, "onAccuracyChanged called");
+
     }
 }
