@@ -59,7 +59,11 @@ public class SimpleDanceRecord {
         double amp = stats.getMax() - stats.getMin();
         double middle = stats.getMin() + (amp / 2);
 //		double freq = getTopFrequency(axis); // TODO: use fourier transform
-        double pd = 2 * (targetArr.size() / getNumMiddleCrossings(targetArr, middle));
+        double numMiddleCrossings = getNumMiddleCrossings(targetArr, middle);
+        double pd = 0;
+        if (numMiddleCrossings != 0) {
+            pd = 2 * (targetArr.size() / numMiddleCrossings);
+        }
 
         statsArr[0] = middle;
         statsArr[1] = amp;

@@ -35,7 +35,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     Node mNode; // the connected device to send the message to
     GoogleApiClient mGoogleApiClient;
     private static final String HELLO_WORLD_WEAR_PATH = "/hello-world-wear";
-    private boolean mResolvingError=false;
+    private boolean mResolvingError = false;
     private static final String TAG = "WatchActivity";
 
     private SensorManager mSensorManager;
@@ -83,6 +83,8 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             @Override
             public void run() {
                 Song song = danceRecord.isSong();
+                Log.d(TAG, "song so far: " + song);
+                Log.d(TAG, "stats so far: " + danceRecord.getStats());
                 if (song != Song.NONE) {
                     sendMessage(song.uri);
                 }
@@ -97,8 +99,11 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
      * Send message to mobile handheld
      */
     private void sendMessage(String uri) {
+        Log.d(TAG, "sendMessage called");
         if (mNode != null && mGoogleApiClient!=null && mGoogleApiClient.isConnected()) {
 //            byte[] songUri = "spotify:track:5R9a4t5t5O0IsznsrKPVro".getBytes(StandardCharsets.UTF_8);
+            Log.d(TAG, "sendMessage sending song with name: " + uri);
+
             byte[] songUri = uri.getBytes(StandardCharsets.UTF_8);
 
             Wearable.MessageApi.sendMessage(
@@ -106,7 +111,6 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
                     new ResultCallback<MessageApi.SendMessageResult>() {
                         @Override
                         public void onResult(MessageApi.SendMessageResult sendMessageResult) {
-
                             if (!sendMessageResult.getStatus().isSuccess()) {
                                 Log.e(TAG, "Failed to send message with status code: "
                                         + sendMessageResult.getStatus().getStatusCode());
@@ -128,17 +132,35 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
                 Log.d(TAG, "mGoogleApiClient is not connected");
             }
         }
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart called");
-        if (!mResolvingError) {
+//        if (!mResolvingError) {
+//            Log.d(TAG, "attempting to connect to mGoogleApiClient");
+//            mGoogleApiClient.connect();
+//        }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d("WatchActivity", "onResume called");
+        super.onResume();
+        mSensorManager.registerListener(this, mRotationVectorSensor, 10000);
+        if (!mResolvingError) { // TODO: get rid of this
             Log.d(TAG, "attempting to connect to mGoogleApiClient");
             mGoogleApiClient.connect();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d("WatchActivity", "onPause called");
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+        mGoogleApiClient.disconnect();
     }
 
     /*
