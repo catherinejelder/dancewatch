@@ -41,6 +41,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     private SensorManager mSensorManager;
     private Sensor mRotationVectorSensor;
     private final float[] mRotationMatrix = new float[16];
+    private float deviceOrientation[] = new float[3];
 
     private SimpleDanceRecord danceRecord;
     private Handler messageHandler = new Handler();
@@ -76,10 +77,24 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             }
         });
 
-        // periodically check if a song has been detected
         danceRecord = new SimpleDanceRecord();
 
-        Runnable runnable = new Runnable() {
+        // periodically log orientation data
+        // TODO: is 40 ms a good interval?
+        Runnable orientationLogger = new Runnable() {
+            @Override
+            public void run() {
+                // update dance record
+                danceRecord.addPoint(deviceOrientation);
+                Log.d(TAG, "logging orientation: " + Arrays.toString(deviceOrientation));
+                messageHandler.postDelayed(this, 40);
+            }
+        };
+
+        messageHandler.postDelayed(orientationLogger, 40);
+
+        // periodically check if a song has been detected
+        Runnable songChecker = new Runnable() {
             @Override
             public void run() {
                 Song song = danceRecord.isSong();
@@ -92,7 +107,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             }
         };
 
-        messageHandler.postDelayed(runnable, 250);
+        messageHandler.postDelayed(songChecker, 250);
     }
 
     /**
@@ -148,7 +163,9 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     protected void onResume() {
         Log.d("WatchActivity", "onResume called");
         super.onResume();
-        mSensorManager.registerListener(this, mRotationVectorSensor, 10000);
+//        mSensorManager.registerListener(this, mRotationVectorSensor, 10000);
+//        mSensorManager.registerListener(this, mRotationVectorSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mRotationVectorSensor, SensorManager.SENSOR_DELAY_FASTEST);
         if (!mResolvingError) { // TODO: get rid of this
             Log.d(TAG, "attempting to connect to mGoogleApiClient");
             mGoogleApiClient.connect();
@@ -208,9 +225,15 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
             float orientation[] = new float[3];
             SensorManager.getOrientation(mRotationMatrix, orientation);
-            Log.d("WatchActivity", "getOrientation = " + Arrays.toString(orientation));
-            // update dance record
-            this.danceRecord.addPoint(orientation);
+            Log.d(TAG, "getOrientation = " + Arrays.toString(orientation));
+//          // update dance record
+//            this.danceRecord.addPoint(orientation);
+
+            // update orientation field
+            this.deviceOrientation[0] = orientation[0];
+            this.deviceOrientation[1] = orientation[1];
+            this.deviceOrientation[2] = orientation[2];
+
         }
     }
 
