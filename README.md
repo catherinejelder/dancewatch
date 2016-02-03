@@ -1,5 +1,4 @@
-# dancewatch
-dance, dance, revolve
+# DanceWatch
 
 DanceWatch translates dance moves to music.
 Do a dance move for at least 2 seconds while wearing an Android watch, and if DanceWatch recognizes the move, it will pull up the corresponding Spofity song on your phone.
@@ -12,3 +11,10 @@ A Spotify Premium account. (Non-Premium Spotify accounts don't support streaming
 ## Dance moves
 
 Here's a list of dance moves that DanceWatch knows about.
+
+### Call Your Girlfriend
+
+![gif](https://gifs.com/gif/gJnvDG)
+
+A simplified version of Robyn's air punching move. Just punch out on each downbeat.
+
