@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
     // current song uri
     private static String SONG_URI = "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
     private Player mPlayer;
+    private PlayerState mPlayerState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
             }
         });
 
+//        playSongFromIntent(getIntent());
+
         String song_uri = getIntent().getStringExtra("SPOTIFY_URI");
         if (song_uri != null) {
             SONG_URI = song_uri;
@@ -72,6 +75,22 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
+
+//    private void playSongFromIntent(Intent intent) {
+//        String song_uri = intent.getStringExtra("SPOTIFY_URI");
+//        if (song_uri != null) {
+//            SONG_URI = song_uri;
+//        }
+//        Log.d(TAG, "MainActivity preparing to play songUri: " + SONG_URI);
+//
+//        AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
+//                AuthenticationResponse.Type.TOKEN,
+//                REDIRECT_URI);
+//        builder.setScopes(new String[]{"user-read-private", "streaming"});
+//        AuthenticationRequest request = builder.build();
+//
+//        AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -99,6 +118,28 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
             }
         }
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // TODO: remove this logging once it's tested (don't read intent twice)
+        String song_uri = intent.getStringExtra("SPOTIFY_URI");
+        Log.d(TAG, "new intent received. song_uri: " + song_uri);
+
+        if (mPlayerState != null) {
+            if (!mPlayerState.playing) {
+                // if no song is playing, start playing the new song
+                Log.d(TAG, "no song is playing, so let's play song_uri: " + song_uri);
+//            playSongFromIntent(intent);
+                mPlayer.play(song_uri);
+            } else {
+                // if a song is already playing, just log the message
+                Log.d(TAG, "a song is already playing, so we won't play song_uri: " + song_uri);
+            }
+        } else {
+            Log.d(TAG, "mPlayerState is null, so we can't play song_uri: " + song_uri);
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -149,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         Log.d("MainActivity", "Playback event received: " + eventType.name());
+        mPlayerState = playerState;
     }
 
     @Override

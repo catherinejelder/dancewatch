@@ -99,7 +99,12 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             public void run() {
                 Song song = danceRecord.isSong();
                 Log.d(TAG, "song so far: " + song);
-                Log.d(TAG, "stats so far: " + danceRecord.getStats());
+//                Log.d(TAG, "stats so far, for danceRecord of size: (" + danceRecord.zs.size() + ", " + danceRecord.xs.size() + ", " + danceRecord.ys.size() + ")\n"
+//                        + "zs: " + danceRecord.zs
+//                        + "\n xs: " + danceRecord.xs
+//                        + "\n ys: " + danceRecord.ys
+//                        + "\n" + danceRecord.getStats());
+                Log.d(TAG, "stats so far: \n" + danceRecord.getStats());
                 if (song != Song.NONE) {
                     sendMessage(song.uri);
                 }
@@ -220,20 +225,16 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.d(TAG, "onSensorChanged called");
+//        Log.d(TAG, "onSensorChanged called");
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
             float orientation[] = new float[3];
             SensorManager.getOrientation(mRotationMatrix, orientation);
-            Log.d(TAG, "getOrientation = " + Arrays.toString(orientation));
-//          // update dance record
-//            this.danceRecord.addPoint(orientation);
-
+//            Log.d(TAG, "getOrientation = " + Arrays.toString(orientation));
             // update orientation field
             this.deviceOrientation[0] = orientation[0];
             this.deviceOrientation[1] = orientation[1];
             this.deviceOrientation[2] = orientation[2];
-
         }
     }
 
