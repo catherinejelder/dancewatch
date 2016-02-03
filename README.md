@@ -17,4 +17,3 @@ Here's a list of dance moves that DanceWatch knows about.
 ![gif](https://j.gifs.com/gJnvDG.gif)
 
 A simplified version of Robyn's air punching move. Just punch out on each downbeat.
-
