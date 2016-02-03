@@ -24,4 +24,10 @@ Beyonce's hand flipping move. Use the hand wearing the watch.
 
 ![gif](https://j.gifs.com/gJnvDG.gif)
 
-A simplified version of Robyn's air punching move. Just punch out on each downbeat.
+A simplified version of Robyn's air punching move. Punch out on each downbeat.
+
+#### Gangnam Style
+
+![gif](https://j.gifs.com/PNzRAw.gif)
+
+Psy's horse riding move.
