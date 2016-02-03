@@ -12,7 +12,13 @@ A Spotify Premium account. (Non-Premium Spotify accounts don't support streaming
 
 Here's a list of dance moves that DanceWatch knows about.
 
-### Call Your Girlfriend
+#### Single Ladies
+
+![gif](https://j.gifs.com/Z6z5oR.gif)
+
+Beyonce's hand flipping move. Use the hand wearing the watch.
+
+#### Call Your Girlfriend
 
 ![gif](https://j.gifs.com/gJnvDG.gif)
 
