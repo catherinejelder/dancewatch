@@ -86,7 +86,8 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             public void run() {
                 // update dance record
                 danceRecord.addPoint(deviceOrientation);
-                Log.d(TAG, "logging orientation: " + Arrays.toString(deviceOrientation));
+                Log.d(TAG, "orientation before translation: " + Arrays.toString(deviceOrientation));
+                Log.d(TAG, "logging orientation: [" + danceRecord.zs.peekLast() + ", " + danceRecord.xs.peekLast() + ", " + danceRecord.ys.peekLast() + "]");
                 messageHandler.postDelayed(this, 40);
             }
         };
@@ -189,7 +190,6 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(NodeApi.GetConnectedNodesResult nodes) {
@@ -241,6 +241,5 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         Log.d(TAG, "onAccuracyChanged called");
-
     }
 }

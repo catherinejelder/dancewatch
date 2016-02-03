@@ -15,6 +15,7 @@ public class SimpleDanceRecord {
 
     private int window = 2 * 1000 / 40; // number of recent records we're interested in (2 seconds)
 
+    // TODO: make private
     public Deque<Float> zs = new ArrayDeque<>();
     public Deque<Float> xs = new ArrayDeque<>();
     public Deque<Float> ys = new ArrayDeque<>();
@@ -91,11 +92,25 @@ public class SimpleDanceRecord {
         }
     }
 
+    // add point to queue. if needed, translate point to compensate for "leaps"
+    public void translateAndAddPoint(Deque<Float> queue, float pt) {
+        // TODO: this could translate points upwards or downwards forever
+        if ((!queue.isEmpty()) && (Math.abs(queue.peekLast() - pt) >  0.7 * 2 * Math.PI)) {
+            queue.add((float) (Math.signum(queue.peekLast()) * 2 * Math.PI) + pt);
+        } else {
+            queue.add(pt);
+        }
+    }
+
     public void addPoint(float[] pos) {
         // add point to queue
-        zs.add(pos[0]);
-        xs.add(pos[1]);
-        ys.add(pos[2]);
+//        zs.add(pos[0]);
+//        xs.add(pos[1]);
+//        ys.add(pos[2]);
+        translateAndAddPoint(zs, pos[0]);
+        translateAndAddPoint(xs, pos[1]);
+        translateAndAddPoint(ys, pos[2]);
+
         // trim old points from queue
         trimQueueIfNeeded(zs);
         trimQueueIfNeeded(xs);
