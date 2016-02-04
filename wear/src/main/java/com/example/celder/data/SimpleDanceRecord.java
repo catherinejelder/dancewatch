@@ -1,7 +1,10 @@
 package com.example.celder.data;
 
-
+import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.transform.DftNormalization;
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.TransformType;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -71,6 +74,24 @@ public class SimpleDanceRecord {
         statsArr[2] = pd;
 
         return statsArr;
+    }
+
+    // TODO: queue must be power of two
+    private Complex[] getFFTforAxis(int axis) {
+        Deque<Float> targetArr;
+        if (axis == 0){
+            targetArr = zs;
+        } else if (axis == 1) {
+            targetArr = xs;
+        } else {
+            targetArr = ys;
+        }
+        double[] doubleVals = new double[targetArr.size()];
+        for (int i=0; i<targetArr.size(); i++) {
+            doubleVals[i] = new Float((float) targetArr.toArray()[i]).doubleValue();
+        }
+        FastFourierTransformer fft = new FastFourierTransformer(DftNormalization.STANDARD);
+        return fft.transform(doubleVals, TransformType.FORWARD);
     }
 
     private int getNumMiddleCrossings(Deque<Float> queue, double middle) {
