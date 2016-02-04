@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
     // current song uri
-    private static String SONG_URI = "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
+    private static String SONG_URI; // "spotify:track:2TpxZ7JUBn3uw46aR7qd6V";
     private Player mPlayer;
     private PlayerState mPlayerState;
 
@@ -107,7 +107,9 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
                         mPlayer = player;
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                        mPlayer.play(SONG_URI);
+                        if (SONG_URI != null) {
+                            mPlayer.play(SONG_URI);
+                        }
                     }
 
                     @Override
@@ -125,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements PlayerNotificatio
         String song_uri = intent.getStringExtra("SPOTIFY_URI");
         Log.d(TAG, "new intent received. song_uri: " + song_uri);
 
-        if (mPlayerState != null) {
-            if (!mPlayerState.playing) {
+        if (mPlayer != null) {
+            if ((mPlayerState == null) || (!mPlayerState.playing)) {
                 // if no song is playing, start playing the new song
                 Log.d(TAG, "no song is playing, so let's play song_uri: " + song_uri);
 //            playSongFromIntent(intent);
