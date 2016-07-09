@@ -4,7 +4,7 @@ DanceWatch translates dance moves to music.
 
 Do a dance move for at least 2 seconds while wearing an Android watch, and if DanceWatch recognizes the move, it will pull up the corresponding Spotify song on your phone.
 
-DanceWatch tracks two components of your motion at the moment: frequency and amplitude. Dance moves should be made at roughly the same speed and range of motion as in the original song.
+DanceWatch tracks two components of your motion at the moment, frequency and amplitude, along 3 axes (x, y, z). Dance moves should be made at roughly the same speed and range of motion as in the original song.
 
 ## Requirements 
 
