@@ -86,7 +86,7 @@ public class WatchActivity extends Activity implements GoogleApiClient.Connectio
             public void run() {
                 // update dance record
                 danceRecord.addPoint(deviceOrientation);
-                Log.d(TAG, "orientation before translation: " + Arrays.toString(deviceOrientation));
+//                Log.d(TAG, "orientation before translation: " + Arrays.toString(deviceOrientation));
                 Log.d(TAG, "logging orientation: [" + danceRecord.zs.peekLast() + ", " + danceRecord.xs.peekLast() + ", " + danceRecord.ys.peekLast() + "]");
                 messageHandler.postDelayed(this, 40);
             }
